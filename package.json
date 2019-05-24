@@ -1,0 +1,29 @@
+{
+  "name": "admin-panel-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuisGuillen/admin-panel-web.git"
+  },
+  "author": "Luis Guillen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LuisGuillen/admin-panel-web/issues"
+  },
+  "homepage": "https://github.com/LuisGuillen/admin-panel-web#readme",
+  "dependencies": {
+    "express": "^4.17.0",
+    "mongoose": "^5.5.11"
+  },
+  "devDependencies": {
+    "jest": "^24.8.0",
+    "nodemon": "^1.19.0"
+  }
+}
