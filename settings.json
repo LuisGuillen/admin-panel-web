@@ -1,0 +1,14 @@
+{
+    "types": {
+        "user": {
+            "admin": 1,
+            "client": 2
+        }
+    },
+    "status": {
+        "part": {
+            "new": 1,
+            "used": 2
+        }
+    }
+}
