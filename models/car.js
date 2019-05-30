@@ -7,6 +7,7 @@ const CarSchema = new Schema({
     model: { type: String, required: true },
     year: Number,
     milage: Number,
+    active: { type: Number, default: 1 },
     user_id: ObjectId
 });
 

@@ -7,15 +7,15 @@ function Users() {
 		{ id: 'first_name', label: 'Nombre' },
 		{ id: 'last_name', label: 'Apellido' },
 		{ id: 'age', label: 'Edad' },
-		{ id: 'type', label: 'Tipo' },
+		{ id: 'type', label: 'Tipo', options: 'user' },
 	]
 
 	return (
 		<div>
-			<h1>Users</h1>
 			<DataTable
 				columns={columns}
 				endPoint={'users'}
+				title={'Usuarios'}
 			></DataTable>
 		</div>
 	);
