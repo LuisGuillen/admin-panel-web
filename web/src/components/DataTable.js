@@ -11,6 +11,13 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+import Settings from '../settings';
+import AlertDialog from './AlertDialog';
 
 const desc = (a, b, orderBy) => {
     if (b[orderBy] < a[orderBy]) {
@@ -45,7 +52,7 @@ function EnhancedTableHead(props) {
     return (
         <TableHead>
             <TableRow>
-                {columns.map(row => (
+                {columns && columns.map(row => (
                     <TableCell
                         key={row.id}
                         // align={row.numeric ? 'right' : 'left'}
@@ -60,9 +67,22 @@ function EnhancedTableHead(props) {
                         </TableSortLabel>
                     </TableCell>
                 ))}
+                <TableCell align="center">
+                    Acciones
+                </TableCell>
             </TableRow>
         </TableHead>
     );
+}
+
+function TableCells({ columns, item }) {
+    return columns && columns.map(({ id, options }) => {
+        return (
+            <TableCell key={id}> 
+                {options ? Settings.types[options].label[item[id]] : item[id]} 
+            </TableCell>
+        );
+    });
 }
 
 const useStyles = makeStyles(theme => ({
@@ -80,16 +100,21 @@ const useStyles = makeStyles(theme => ({
     tableWrapper: {
         overflowX: 'auto',
     },
+    title: {
+        flexGrow: 1
+    }
 }));
 
 function DataTable(props) {
-    const { columns, endPoint } = props;
+    const { columns, endPoint, title } = props;
     const classes = useStyles();
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('calories');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [rows, setRows] = useState([]);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [currentID, setCurrentID] = useState(null);
 
     const handleRequestSort = (event, property) => {
         const isDesc = orderBy === property && order === 'desc';
@@ -105,7 +130,17 @@ function DataTable(props) {
         setRowsPerPage(+event.target.value);
     }
 
-    useEffect(() => {
+    const handleDeleteRow = () => {
+        fetch(`http://localhost:3000/api/${ endPoint }/${ currentID }`, { method: 'DELETE' })
+            .then(() => {
+                handleFetchData();
+                setDialogOpen(false);
+                setCurrentID(null);
+            })
+            .catch(err => console.log(err));
+    }
+   
+    const handleFetchData = () => {
         fetch(`http://localhost:3000/api/${ endPoint }`, { method: 'GET' })
             .then(res => res.json())
             .then(res => {
@@ -113,15 +148,20 @@ function DataTable(props) {
                 console.log(res)
             })
             .catch(err => console.log(err));
-    }, [ endPoint ])
+    }
+
+    useEffect(() => {
+        handleFetchData();
+    }, [])
 
     return (
         <div className={classes.root}>
             <Paper className={classes.paper}>
                 <Toolbar>
-                    <Typography variant="h6">
-                        Nutrition
+                    <Typography className={classes.title} variant="h6">
+                        {title}
                     </Typography>
+                    <Button variant="contained" color="secondary"> Agregar {title} +</Button>
                 </Toolbar>
                 <div className={classes.tableWrapper}>
                     <Table className={classes.table}>
@@ -136,16 +176,23 @@ function DataTable(props) {
                             stableSort(rows, getSorting(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map(row => {
-                                    debugger
                                     return (
                                         <TableRow
                                             hover
                                             key={row._id}
                                         >
-                                            <TableCell>{row.first_name}</TableCell>
-                                            <TableCell>{row.last_name}</TableCell>
-                                            <TableCell>{row.age}</TableCell>
-                                            <TableCell>{row.type}</TableCell>
+                                            <TableCells columns={columns} item={row} />
+                                            <TableCell align="center">
+                                                <IconButton >
+                                                    <EditIcon color="primary" />
+                                                </IconButton>
+                                                <IconButton onClick={() => {
+                                                    setDialogOpen(true);
+                                                    setCurrentID(row._id);
+                                                }}>
+                                                    <DeleteIcon color="error" />
+                                                </IconButton>
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 }) 
@@ -175,6 +222,14 @@ function DataTable(props) {
                     onChangeRowsPerPage={handleChangeRowsPerPage}
                 />
             </Paper>
+            <AlertDialog
+                open={dialogOpen}
+                handleClose={() => {
+                    setDialogOpen(false);
+                    setCurrentID(null);
+                }}
+                handleOk={() => handleDeleteRow()}
+            ></AlertDialog>
         </div>
     );
 }

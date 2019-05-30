@@ -5,6 +5,7 @@ const User = require('../models/user');
 
 router.get('/', (req, res) => {
     User.find()
+        .where({ active: 1 })
         .then(response => res.json(response))
         .catch(err => res.json(err));
 });
@@ -37,7 +38,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
     const params = Object.assign(req.params, req.body)
 
-    User.findByIdAndRemove(params.id)
+    User.findByIdAndUpdate(params.id, { active: 0 }, {useFindAndModify: false})
         .then(() => res.json({ status: 'deleted' }))
         .catch(err => res.json(err));
 });

@@ -6,6 +6,7 @@ const PartSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, required: true },
     status: Number,
+    active: { type: Number, default: 1 },
     car_id: ObjectId
 });
 
