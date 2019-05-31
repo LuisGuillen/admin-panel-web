@@ -18,6 +18,9 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 import Settings from '../settings';
 import AlertDialog from './AlertDialog';
+import DialogForm from './DialogForm';
+
+const API_URL = 'http://localhost:3000/api';
 
 const desc = (a, b, orderBy) => {
     if (b[orderBy] < a[orderBy]) {
@@ -55,7 +58,6 @@ function EnhancedTableHead(props) {
                 {columns && columns.map(row => (
                     <TableCell
                         key={row.id}
-                        // align={row.numeric ? 'right' : 'left'}
                         sortDirection={orderBy === row.id ? order : false}
                     >
                         <TableSortLabel
@@ -79,7 +81,7 @@ function TableCells({ columns, item }) {
     return columns && columns.map(({ id, options }) => {
         return (
             <TableCell key={id}> 
-                {options ? Settings.types[options].label[item[id]] : item[id]} 
+                {options ? Settings[options.type ? options.type : 'types'][options.model].label[item[id]] : item[id]} 
             </TableCell>
         );
     });
@@ -115,6 +117,8 @@ function DataTable(props) {
     const [rows, setRows] = useState([]);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [currentID, setCurrentID] = useState(null);
+    const [dialogFormOpen, setDialogFormOpen] = useState(false);
+    const [currentData, setCurrentData] = useState(null);
 
     const handleRequestSort = (event, property) => {
         const isDesc = orderBy === property && order === 'desc';
@@ -130,8 +134,18 @@ function DataTable(props) {
         setRowsPerPage(+event.target.value);
     }
 
+    const handleFetchData = () => {
+        fetch(`${ API_URL }/${ endPoint }`, { method: 'GET' })
+            .then(res => res.json())
+            .then(res => {
+                setRows(res) 
+                console.log(res)
+            })
+            .catch(err => console.log(err));
+    }
+
     const handleDeleteRow = () => {
-        fetch(`http://localhost:3000/api/${ endPoint }/${ currentID }`, { method: 'DELETE' })
+        fetch(`${ API_URL }/${ endPoint }/${ currentID }`, { method: 'DELETE' })
             .then(() => {
                 handleFetchData();
                 setDialogOpen(false);
@@ -139,13 +153,34 @@ function DataTable(props) {
             })
             .catch(err => console.log(err));
     }
-   
-    const handleFetchData = () => {
-        fetch(`http://localhost:3000/api/${ endPoint }`, { method: 'GET' })
-            .then(res => res.json())
-            .then(res => {
-                setRows(res) 
-                console.log(res)
+
+    const handleSaveRow = (data) => {
+        fetch(`${ API_URL }/${ endPoint }`, { 
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(() => {
+                handleFetchData();
+                setDialogFormOpen(false);
+            })
+            .catch(err => console.log(err));
+    };
+    
+    const handleUpdateRow = (data) => {
+        fetch(`${ API_URL }/${ endPoint }/${ currentData._id }`, { 
+            method: 'PUT',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(() => {
+                handleFetchData();
+                setDialogFormOpen(false);
+                setCurrentData(null);
             })
             .catch(err => console.log(err));
     }
@@ -161,7 +196,7 @@ function DataTable(props) {
                     <Typography className={classes.title} variant="h6">
                         {title}
                     </Typography>
-                    <Button variant="contained" color="secondary"> Agregar {title} +</Button>
+                    <Button variant="contained" color="secondary" onClick={() => setDialogFormOpen(true)}> Agregar {title} +</Button>
                 </Toolbar>
                 <div className={classes.tableWrapper}>
                     <Table className={classes.table}>
@@ -172,7 +207,7 @@ function DataTable(props) {
                             columns={columns}
                         />
                         <TableBody>
-                        {rows ? 
+                        {rows.length > 0 ? 
                             stableSort(rows, getSorting(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map(row => {
@@ -183,12 +218,15 @@ function DataTable(props) {
                                         >
                                             <TableCells columns={columns} item={row} />
                                             <TableCell align="center">
-                                                <IconButton >
-                                                    <EditIcon color="primary" />
+                                                <IconButton onClick={() => {
+                                                    setCurrentData(row);
+                                                    setDialogFormOpen(true);
+                                                }}>
+                                                    <EditIcon color="secondary" />
                                                 </IconButton>
                                                 <IconButton onClick={() => {
-                                                    setDialogOpen(true);
                                                     setCurrentID(row._id);
+                                                    setDialogOpen(true);
                                                 }}>
                                                     <DeleteIcon color="error" />
                                                 </IconButton>
@@ -229,7 +267,25 @@ function DataTable(props) {
                     setCurrentID(null);
                 }}
                 handleOk={() => handleDeleteRow()}
-            ></AlertDialog>
+            />
+            {
+                dialogFormOpen &&
+                <DialogForm
+                    open={dialogFormOpen}
+                    handleClose={() => {
+                        setDialogFormOpen(false);
+                        setCurrentData(null);
+                    }}
+                    handleOk={
+                        currentData ?
+                        (data) => handleUpdateRow(data) :
+                        (data) => handleSaveRow(data)
+                    }
+                    title={title}
+                    columns={columns}
+                    data={currentData}
+                />
+            }
         </div>
     );
 }
