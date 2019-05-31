@@ -1,8 +1,23 @@
 import React from 'react';
+import DataTable from '../components/DataTable';
 
 function Cars() {
+
+	const columns = [
+		{ id: 'make', label: 'Marca' },
+		{ id: 'model', label: 'Modelo' },
+		{ id: 'year', label: 'Año' },
+		{ id: 'milage', label: 'Millas' },
+	];
+
 	return (
-		<h1>Cars</h1>
+		<div>
+			<DataTable
+				columns={columns}
+				endPoint={'cars'}
+				title={'Autos'}
+			></DataTable>
+		</div>
 	);
 }
 
