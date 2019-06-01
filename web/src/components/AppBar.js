@@ -70,7 +70,7 @@ function MenuAppBar() {
                             open={open}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={handleClose}>Salir</MenuItem>
+                            {/* <MenuItem onClick={handleClose}>Salir</MenuItem> */}
                         </Menu>
                     </div>
                 </Toolbar>

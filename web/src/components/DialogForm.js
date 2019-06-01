@@ -26,7 +26,7 @@ function FormDialog(props) {
 
     return (
         <div>
-            <Dialog open={open} onClose={handleClose} >
+            <Dialog open={open || false} onClose={handleClose} >
                 <DialogTitle >{title}</DialogTitle>
                 <DialogContent>
                     {columns.map(({ id, label, type, options, required }, index) =>

@@ -5,18 +5,18 @@ import Adapter from 'enzyme-adapter-react-16';
 Enzyme.configure({ adapter: new Adapter() });
 import { shallow } from 'enzyme';
 
-import Cars from '../pages/Cars';
-import DataTable from '../components/DataTable';
+import DialogForm from '../components/DialogForm';
+import { Dialog } from '@material-ui/core';
 
-describe('Cars component', () => {
+describe('DialogForm component', () => {
 	it('renders without crashing', () => {
 		const div = document.createElement('div');
-		ReactDOM.render(<Cars />, div);
+		ReactDOM.render(<DialogForm columns={[]} />, div);
 		ReactDOM.unmountComponentAtNode(div);
 	});
 
-	it('renders a <DataTable />', () => {
-		const wrapper = shallow(<Cars />);
-		expect(wrapper.find(DataTable)).toHaveLength(1);
+	it('renders a <Dialog />', () => {
+		const wrapper = shallow(<DialogForm columns={[]} />);
+		expect(wrapper.find(Dialog)).toHaveLength(1);
 	});
 });
