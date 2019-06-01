@@ -4,10 +4,10 @@ import DataTable from '../components/DataTable';
 function Cars() {
 
 	const columns = [
-		{ id: 'make', label: 'Marca' },
-		{ id: 'model', label: 'Modelo' },
-		{ id: 'year', label: 'Año' },
-		{ id: 'milage', label: 'Millas' },
+		{ id: 'make', label: 'Marca', required: true },
+		{ id: 'model', label: 'Modelo', required: true },
+		{ id: 'year', label: 'Año', type: 'number' },
+		{ id: 'milage', label: 'Millas', type: 'number' },
 	];
 
 	return (
