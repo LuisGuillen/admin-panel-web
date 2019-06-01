@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const mongoose = require('./db');
+require('dotenv').config();
+require('./db');
 
 app.set('port', process.env.PORT || 3000)
 
