@@ -19,7 +19,9 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Settings from '../settings';
 import AlertDialog from './AlertDialog';
 import DialogForm from './DialogForm';
+import Notification from './Notification';
 
+// const API_URL = 'https://admin-panel-web-test.herokuapp.com/api';
 const API_URL = 'http://localhost:3000/api';
 
 const desc = (a, b, orderBy) => {
@@ -119,6 +121,8 @@ function DataTable(props) {
     const [currentID, setCurrentID] = useState(null);
     const [dialogFormOpen, setDialogFormOpen] = useState(false);
     const [currentData, setCurrentData] = useState(null);
+    const [openNotification, setOpenNotification] = useState(false);
+    const [titleNotification, setTitleNotification] = useState(null);
 
     const handleRequestSort = (event, property) => {
         const isDesc = orderBy === property && order === 'desc';
@@ -138,10 +142,16 @@ function DataTable(props) {
         fetch(`${ API_URL }/${ endPoint }`, { method: 'GET' })
             .then(res => res.json())
             .then(res => {
-                setRows(res) 
-                console.log(res)
+                setRows(res);
+                console.log(res);
+                // setOpenNotification(true);
+                // setTitleNotification('Registros cargados');
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                setOpenNotification(true);
+                setTitleNotification('Error al cargar registros');
+                console.log(err);
+            });
     }
 
     const handleDeleteRow = () => {
@@ -150,8 +160,14 @@ function DataTable(props) {
                 handleFetchData();
                 setDialogOpen(false);
                 setCurrentID(null);
+                setOpenNotification(true);
+                setTitleNotification('Registro eliminado');
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                setOpenNotification(true);
+                setTitleNotification('Error al borrar registro');
+                console.log(err);
+            });
     }
 
     const handleSaveRow = (data) => {
@@ -165,8 +181,14 @@ function DataTable(props) {
             .then(() => {
                 handleFetchData();
                 setDialogFormOpen(false);
+                setOpenNotification(true);
+                setTitleNotification('Registro guardado');
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                setOpenNotification(true);
+                setTitleNotification('Error al guardar registro');
+                console.log(err);
+            });
     };
     
     const handleUpdateRow = (data) => {
@@ -181,8 +203,14 @@ function DataTable(props) {
                 handleFetchData();
                 setDialogFormOpen(false);
                 setCurrentData(null);
+                setOpenNotification(true);
+                setTitleNotification('Registro actualizado');
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                setOpenNotification(true);
+                setTitleNotification('Error al actualizar registro');
+                console.log(err);
+            });
     }
 
     useEffect(() => {
@@ -286,6 +314,11 @@ function DataTable(props) {
                     data={currentData}
                 />
             }
+                <Notification
+                    open={openNotification}
+                    title={titleNotification}
+                    handleClose={() => setOpenNotification(false)}
+                />
         </div>
     );
 }
